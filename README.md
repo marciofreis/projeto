@@ -1,32 +1,39 @@
 # Podocare
 
-Sistema web responsivo para gestão de podologia e salão, desenvolvido para rodar localmente no XAMPP com PHP e MySQL.
+Sistema web (e PWA) para clínica de podologia e salão: agenda, clientes, prontuário do pé, financeiro com PIX e portal do paciente.
 
 ## Como executar
 
-1. Inicie Apache e MySQL no XAMPP.
-2. Abra o phpMyAdmin e importe `database/schema.sql`.
+1. Inicie Apache e MySQL no XAMPP (neste ambiente o Apache usa a porta **8080**).
+2. Importe `database/schema.sql` no phpMyAdmin. Em uma base já criada, o sistema completa colunas novas sozinho.
 3. Confira usuário e senha em `config/database.php`.
-4. Acesse `http://localhost/projeto/`.
+4. Acesse `http://localhost:8080/projeto/login.php` (ou `http://localhost/projeto/login.php` se a porta for 80).
+5. No celular, use o IP da rede Wi-Fi, por exemplo `http://SEU-IP:8080/projeto/login.php`. O QR aparece no login e em Configurações.
+
+## Acessos iniciais
+
+- Clínica: `login.php` — `admin@podocare.local` / `admin123`
+- Cliente: `portal.php` — a clínica libera telefone + senha na ficha do cliente
+
+## O que o sistema faz
+
+- **Agenda central:** calendário mensal com todos os horários, lista do dia, status e WhatsApp.
+- **Agendamento público:** `agendar.php` com dias, horários, almoço e intervalo definidos em Configurações.
+- **Clientes:** cadastro, foto, anamnese e acesso ao portal.
+- **Prontuário:** mapa do pé, fotos, notas internas e orientação visível só para o paciente.
+- **Financeiro:** caixa e PIX com QR Code e copia-e-cola.
+- **Portal do cliente:** exames, preços, agenda e pagamentos (sem notas internas).
+- **Usuários:** papéis e permissões (administrador, recepção, profissional, financeiro).
+- **Impressão:** exame (clínica ou paciente), ficha e recibo.
+- **PWA:** instalar na tela inicial; no iPhone, Compartilhar → Adicionar à Tela de Início.
+- **Identidade:** logo, cores da marca e textos de WhatsApp editáveis em Configurações.
 
 ## Estrutura
 
-- `index.php`: roteador simples que escolhe a página pela URL.
-- `pages/`: uma página PHP por módulo (`clientes.php`, `configuracoes.php`, `agenda.php` etc.).
-- `config/`: conexão PDO e configurações.
-- `uploads/`: imagens enviadas pelos formulários, separadas por cliente e clínica.
-- `includes/`: layout compartilhado.
-- `assets/css/`: identidade visual responsiva.
-- `assets/js/`: interações do menu mobile.
-- `database/`: schema MySQL e dados iniciais.
-
-O layout funciona em desktop e mobile. Clientes e dados da clínica já possuem formulários com persistência via PDO e upload de imagem.
-
-## Cadastro e imagens
-
-- Em `?page=clientes`, o formulário grava o cliente na tabela `clientes` e aceita foto JPG, PNG ou WEBP de até 3 MB.
-- Em `?page=configuracoes`, o formulário grava o estabelecimento na tabela `clinicas` e aceita o logo nos mesmos formatos.
-- O PHP cria automaticamente `uploads/clientes` e `uploads/clinica` quando o primeiro arquivo é enviado.
-- Para uma base que já tenha sido importada antes desta versão, execute manualmente: `ALTER TABLE clientes ADD foto_path VARCHAR(255);` e crie a tabela `clinicas` usando a definição atual de `database/schema.sql`.
-
-No XAMPP, confirme que `file_uploads` está habilitado no `php.ini`. Se o arquivo ultrapassar o limite do servidor, ajuste `upload_max_filesize` e `post_max_size`, reinicie o Apache e mantenha a validação de 3 MB do formulário.
+- `index.php` — painel da clínica (login da equipe)
+- `portal.php` — área do cliente
+- `agendar.php` — link público de horário
+- `pages/` — um arquivo por módulo
+- `config/` — banco, login, PIX, agenda e permissões
+- `uploads/` — logo, fotos de clientes e exames
+- `assets/` — visual, mapa do pé, PIX e PWA

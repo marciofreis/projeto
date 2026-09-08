@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('mainSidebar');
-    const toggle = document.getElementById('sidebarToggle');
-    if (sidebar && toggle) {
-        toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    const toggles = [document.getElementById('sidebarToggle'), document.getElementById('sidebarToggleTab')].filter(Boolean);
+    if (sidebar && toggles.length) {
+        toggles.forEach((toggle) => toggle.addEventListener('click', () => sidebar.classList.toggle('open')));
         document.addEventListener('click', (event) => {
-            if (window.innerWidth <= 991 && sidebar.classList.contains('open') && !sidebar.contains(event.target) && event.target !== toggle) {
+            const clickedToggle = toggles.some((toggle) => toggle === event.target || toggle.contains(event.target));
+            if (window.innerWidth <= 991 && sidebar.classList.contains('open') && !sidebar.contains(event.target) && !clickedToggle) {
                 sidebar.classList.remove('open');
             }
         });

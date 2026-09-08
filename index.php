@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-session_start();
-require_once __DIR__ . '/config/app.php';
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/boot.php';
+requireStaff();
 
-$clinicLogo = '';
-try {
-    $clinicLogo = (string) (db()->query('SELECT logo_path FROM clinicas WHERE id = 1')->fetchColumn() ?: '');
-} catch (Throwable $exception) {
-}
+$clinic = clinica();
+$clinicName = $clinic['nome'] ?: 'Podocare';
+$clinicLogo = (string) ($clinic['logo_path'] ?? '');
+$staffUser = staff();
 
 $page = $_GET['page'] ?? 'dashboard';
 $routes = [
@@ -18,13 +16,24 @@ $routes = [
     'agenda' => ['title' => 'Agenda', 'active' => 'agenda', 'file' => 'agenda.php'],
     'clientes' => ['title' => 'Clientes', 'active' => 'clients', 'file' => 'clientes.php'],
     'servicos' => ['title' => 'Serviços', 'active' => 'services', 'file' => 'servicos.php'],
-    'financeiro' => ['title' => 'Financeiro', 'active' => 'dashboard', 'file' => 'placeholder.php'],
+    'financeiro' => ['title' => 'Financeiro', 'active' => 'finance', 'file' => 'financeiro.php'],
+    'prontuario' => ['title' => 'Prontuário', 'active' => 'clients', 'file' => 'prontuario.php'],
     'configuracoes' => ['title' => 'Configurações', 'active' => 'settings', 'file' => 'configuracoes.php'],
+    'usuarios' => ['title' => 'Usuários', 'active' => 'users', 'file' => 'usuarios.php'],
 ];
 $current = $routes[$page] ?? $routes['dashboard'];
+if (!can(pagePermission($page))) {
+    flash('danger', 'Você não tem permissão para esta área.');
+    header('Location: ' . firstAllowedUrl());
+    exit;
+}
 $pageTitle = $current['title'];
 $activePage = $current['active'];
 
-require __DIR__ . '/includes/header.php';
+ob_start();
 require __DIR__ . '/pages/' . $current['file'];
+$pageHtml = ob_get_clean();
+
+require __DIR__ . '/includes/header.php';
+echo $pageHtml;
 require __DIR__ . '/includes/footer.php';
